@@ -45,6 +45,4 @@ UserModel user = await Restify.get<UserModel>('/user');
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+My name is Felipe Kaian, I am the author of this package, you can find me on LinkedIn or through the email felipekaianmutti@gmail.com. You can bring improvements, suggestions, and feedback – the more, the better. I hope this package helps our Flutter community grow even more!

@@ -1,7 +1,9 @@
 name: restify
-description: A new Flutter package project.
-version: 0.0.1
-homepage: 
+description: A new http request manager.
+version: 0.0.2
+homepage: https://github.com/FelipeKaian/restify
+repository: https://github.com/FelipeKaian/restify
+license: MIT
 
 environment:
   sdk: '>=3.1.0 <4.0.0'
