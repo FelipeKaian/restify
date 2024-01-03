@@ -82,7 +82,6 @@ class Restify {
       dynamic body,
       T Function(dynamic json)? fromMap}) async {
     try {
-      url = "http://" + url;
 
       print("calling " + url);
 
