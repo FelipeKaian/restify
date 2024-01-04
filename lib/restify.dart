@@ -142,7 +142,7 @@ class Restify {
           dynamic jsonData;
           try {
             jsonData =
-                fromMap(json.decode(utf8.decode(responseObject.codeUnits)));
+                fromMap(json.decode(responseObject));
             return jsonData;
           } catch (e) {
             throw Exception("Erro na conversão do body: " + e.toString());

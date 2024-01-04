@@ -1,6 +1,6 @@
 name: restify
 description: A new http request manager.
-version: 0.0.2
+version: 0.0.7
 homepage: https://github.com/FelipeKaian/restify
 repository: https://github.com/FelipeKaian/restify
 license: MIT
