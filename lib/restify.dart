@@ -5,18 +5,34 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+class RestifyResponseError<T> {
+  final T body;
+  final int statusCode;
+  RestifyResponseError({required this.body, required this.statusCode});
+}
+
 class Restify {
   String baseUrl;
   bool decodeUTF8;
   String? _authorization;
+  Function(String, int)? defaultCatch;
 
   Restify(
     this.baseUrl, {
     this.decodeUTF8 = false,
   });
 
-  void setAuthorization(String authorization) {
+  Restify setAuthorization(String authorization) {
     _authorization = authorization;
+    return this;
+  }
+
+  Restify setDefaultCatch<T>(
+      Function(T, int) catchError, T Function(String) fromJson) {
+    defaultCatch = (String body, int statusCode) {
+      catchError(fromJson(body), statusCode);
+    };
+    return this;
   }
 
   Future<T> get<T>(String url,
@@ -223,11 +239,14 @@ class Restify {
             return jsonData;
           }
         } else {
+          if (defaultCatch != null) {
+            defaultCatch!(response.body, response.statusCode);
+          }
           throw Exception(response);
         }
       }
     } catch (e) {
-      throw Exception("Retify error: $e");
+      throw Exception("Response error: $e");
     }
   }
 
@@ -250,7 +269,7 @@ class Restify {
   }
 }
 
-class MultipartFile extends http.MultipartFile{
+class MultipartFile extends http.MultipartFile {
   MultipartFile(super.field, super.stream, super.length);
 }
 
