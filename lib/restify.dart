@@ -142,7 +142,7 @@ class Restify {
         url += queryParamsConverter(queryParams);
       }
 
-      if (body is! String) {
+      if (body != null && body is! String) {
         body = json.encode(body);
       }
 
