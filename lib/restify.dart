@@ -2,7 +2,8 @@
 library restify;
 
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
 
 class RestifyResponseError<T> {
@@ -15,6 +16,7 @@ class Restify {
   String baseUrl;
   bool decodeUTF8;
   String? _authorization;
+  Map<String, String>? _defaultHeader;
   Function(String, int)? defaultCatch;
 
   Restify(
@@ -24,6 +26,11 @@ class Restify {
 
   Restify setAuthorization(String authorization) {
     _authorization = authorization;
+    return this;
+  }
+
+  Restify setDefaultHeader(Map<String, String> header) {
+    _defaultHeader = header;
     return this;
   }
 
@@ -136,6 +143,10 @@ class Restify {
         headers['Authorization'] = _authorization!;
       }
 
+      if (_defaultHeader != null) {
+        headers.addAll(_defaultHeader!);
+      }
+
       url = baseUrl + url;
 
       if (queryParams != null) {
@@ -149,7 +160,7 @@ class Restify {
       if (multipartFile != null) {
         var request =
             http.MultipartRequest(requestType.toString(), Uri.parse(url));
-        request.files.add(multipartFile);
+        request.files.add(multipartFile.toHttpMultipartFile());
         http.StreamedResponse streamedResponse = await request.send();
         String responseObject = await streamedResponse.stream.bytesToString();
         if (streamedResponse.statusCode >= 200 &&
@@ -165,7 +176,7 @@ class Restify {
             }
             try {
               jsonData = fromMap(json.decode(responseObject));
-              print(
+              debugPrint(
                   "calling $url -> ${responseObject.length > 1000 ? "${responseObject.substring(0, 1000)}..." : responseObject}");
               return jsonData;
             } catch (e) {
@@ -228,8 +239,12 @@ class Restify {
               }
             }
             try {
-              jsonData = fromMap(json.decode(responseObject));
-              print(
+              if (responseObject.isNotEmpty) {
+                jsonData = fromMap(json.decode(responseObject));
+              }else{
+                jsonData = fromMap(responseObject);
+              }
+              debugPrint(
                   "calling $url -> ${response.body.length > 1000 ? "${response.body.substring(0, 1000)}..." : response.body}");
               return jsonData;
             } catch (e) {
@@ -242,7 +257,7 @@ class Restify {
           if (defaultCatch != null) {
             defaultCatch!(response.body, response.statusCode);
           }
-          throw Exception(response);
+          throw Exception(response.body);
         }
       }
     } catch (e) {
@@ -260,7 +275,7 @@ class Restify {
         queryParams += '&';
       }
       if (valor is String) {
-        queryParams += '$chave=${valor}';
+        queryParams += '$chave=$valor';
       } else {
         queryParams += '$chave=${jsonEncode(valor)}';
       }
@@ -269,8 +284,25 @@ class Restify {
   }
 }
 
-class MultipartFile extends http.MultipartFile {
-  MultipartFile(super.field, super.stream, super.length);
+class MultipartFile {
+  String field;
+  String filePath;
+  String type;
+  String subtype;
+  MultipartFile(
+    this.field,
+    this.filePath,
+    this.type,
+    this.subtype,
+  );
+
+  toHttpMultipartFile() {
+    return http.MultipartFile.fromPath(
+      field,
+      filePath,
+      contentType: MediaType(type, subtype),
+    );
+  }
 }
 
 enum RequestType { POST, PUT, GET, DELETE, PATCH }
