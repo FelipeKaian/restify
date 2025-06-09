@@ -269,7 +269,7 @@ class Restify {
     if (params.isEmpty) {
       return "";
     }
-    String queryParams = '?';
+    String queryParams = '';
     params.forEach((chave, valor) {
       if (queryParams.isNotEmpty) {
         queryParams += '&';
@@ -280,7 +280,7 @@ class Restify {
         queryParams += '$chave=${jsonEncode(valor)}';
       }
     });
-    return Uri.encodeFull(queryParams);
+    return Uri.encodeFull("?$queryParams");
   }
 }
 
